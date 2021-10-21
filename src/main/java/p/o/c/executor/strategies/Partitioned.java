@@ -35,17 +35,21 @@ public class Partitioned<T> implements Dynamic, EventHandler<Slot<T>> {
         int partition = tSlot.hash % partitionCount;
         long myCount = myCounts[ partition ];
         AtomicLong allCount = allCounts.get( partition );
-        if( tSlot.isAll ) {
-            proxied.onEvent( tSlot.payload, tSlot.enqueueTimeNanos - System.nanoTime(), true );
-        } else if( myCount == allCount.get() &&
-                allCount.compareAndSet( myCount, myCount + ACQUIRE ) ) {
-            try {
-                proxied.onEvent( tSlot.payload, tSlot.enqueueTimeNanos - System.nanoTime(), false );
-            } finally {
+        boolean isGo = (myCount == allCount.get()) && allCount.compareAndSet( myCount, myCount + ACQUIRE );
+        try {
+            if( tSlot.isAll ) {
+                proxied.onAllEvent( tSlot.payload, tSlot.enqueueTimeNanos - System.nanoTime(), isGo );
+            } else {
+                if( isGo ) {
+                    proxied.onEvent( tSlot.payload, tSlot.enqueueTimeNanos - System.nanoTime() );
+                }
+            }
+        } finally {
+            if( isGo ){
                 allCount.lazySet( myCount + RELEASE );
             }
+            myCounts[ partition ] = myCount + RELEASE;
         }
-        myCounts[ partition ] = myCount + RELEASE;
     }
 
 }

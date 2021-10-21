@@ -29,19 +29,21 @@ public interface Producer<T> {
     /**
      * Publish to all Threads
      * @param translator
+     * @param hash
      * @param arg1
      * @param <A>
      */
-    <A> void publishAll( ProducerOneArg<T,A> translator, A arg1 );
+    <A> void publishAll( ProducerOneArg<T,A> translator, int hash, A arg1 );
 
     /**
      * Publish to all Threads
      * @param translator
+     * @param hash
      * @param arg1
      * @param arg2
      * @param <A>
      * @param <B>
      */
-    <A,B> void publishAll( ProducerTwoArg<T,A,B> translator, A arg1, B arg2 );
+    <A,B> void publishAll( ProducerTwoArg<T,A,B> translator, int hash, A arg1, B arg2 );
 
 }

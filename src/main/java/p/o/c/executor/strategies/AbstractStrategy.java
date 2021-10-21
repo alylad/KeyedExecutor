@@ -14,10 +14,11 @@ abstract class AbstractStrategy<T> implements EventHandler<Slot<T>> {
 
     public void onEvent(Slot<T> slot, long sequence, boolean b) {
         try {
+            boolean isGo = isGo( slot.hash, sequence );
             if( slot.isAll ) {
-                proxied.onEvent( slot.payload, slot.enqueueTimeNanos - System.nanoTime(), true );
-            } else if( isGo( slot.hash, sequence ) ) {
-                proxied.onEvent( slot.payload, slot.enqueueTimeNanos - System.nanoTime(), false );
+                proxied.onAllEvent( slot.payload, slot.enqueueTimeNanos - System.nanoTime(), isGo );
+            } else if( isGo ) {
+                proxied.onEvent( slot.payload, slot.enqueueTimeNanos - System.nanoTime() );
             }
         } catch( Exception ex ){
             throw new RuntimeException( ex );

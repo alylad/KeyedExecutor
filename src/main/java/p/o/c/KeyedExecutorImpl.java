@@ -112,14 +112,16 @@ public class KeyedExecutorImpl implements KeyedExecutor {
             }
 
             @Override
-            public <A> void publishAll(ProducerOneArg<T, A> translator, A arg1) {
+            public <A> void publishAll(ProducerOneArg<T, A> translator, int hash, A arg1) {
                 Header header = headerTLTrue.get();
+                header.hash.value = hash;
                 disruptor.publishEvent( translator, header, arg1 );
             }
 
             @Override
-            public <A, B> void publishAll(ProducerTwoArg<T, A, B> translator, A arg1, B arg2) {
+            public <A, B> void publishAll(ProducerTwoArg<T, A, B> translator, int hash, A arg1, B arg2) {
                 Header header = headerTLTrue.get();
+                header.hash.value = hash;
                 disruptor.publishEvent( translator, header, arg1, arg2 );
             }
         };
